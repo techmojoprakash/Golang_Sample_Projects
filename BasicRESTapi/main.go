@@ -78,23 +78,46 @@ func createMovie(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(movie)
 }
 
+// func updateMovie(w http.ResponseWriter, r *http.Request) {
+// 	fmt.Println("Entered updateMovie")
+// 	w.Header().Set("Content-Type", "application/json")
+// 	var New_Movie Movie
+// 	_ = json.NewDecoder(r.Body).Decode(&New_Movie)
+// 	// based on id we are updating values in the movie
+// 	for index, item := range movies {
+// 		if item.ID == New_Movie.ID {
+// 			item.Title = New_Movie.Title
+// 			item.Isbn = New_Movie.Isbn
+
+// 			item.Director.FirstName = New_Movie.Director.FirstName
+// 			item.Director.LastName = New_Movie.Director.LastName
+
+// 			movies[index] = item // update item ie. movie in same index // imp
+// 			json.NewEncoder(w).Encode(item)
+// 			break
+// 		}
+// 	}
+
+// }
+
 func updateMovie(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Entered updateMovie")
 	w.Header().Set("Content-Type", "application/json")
-	var New_Movie Movie
-	_ = json.NewDecoder(r.Body).Decode(&New_Movie)
-	// based on id we are updating values in the movie
+	params := mux.Vars(r)
+
+	// loop over the movies by range
+	// delete the movie with id (sent by the paras of the postman)
+	// add new movie (sent by the body of the postman)
+
 	for index, item := range movies {
-		if item.ID == New_Movie.ID {
-			item.Title = New_Movie.Title
-			item.Isbn = New_Movie.Isbn
-
-			item.Director.FirstName = New_Movie.Director.FirstName
-			item.Director.LastName = New_Movie.Director.LastName
-
-			movies[index] = item // update item ie. movie in same index // imp
-			json.NewEncoder(w).Encode(item)
-			break
+		if item.ID == params["id"] {
+			movies = append(movies[:index], movies[index+1:]...)
+			var New_Movie Movie
+			json.NewDecoder(r.Body).Decode(&New_Movie)
+			New_Movie.ID = params["id"]
+			movies = append(movies, New_Movie)
+			json.NewEncoder(w).Encode(New_Movie)
+			return
 		}
 	}
 
@@ -112,7 +135,7 @@ func main() {
 	r.HandleFunc("/movies", getMovies).Methods("GET")
 	r.HandleFunc("/movies/{id}", getMoviebyId).Methods("GET")
 	r.HandleFunc("/movies", createMovie).Methods("POST")
-	r.HandleFunc("/movies", updateMovie).Methods("PUT")
+	r.HandleFunc("/movies/{id}", updateMovie).Methods("PUT")
 	r.HandleFunc("/movies/{id}", deleteMovie).Methods("DELETE")
 
 	fmt.Println("Starting server at port 8080...")
