@@ -68,6 +68,7 @@ func UpdateUserbyId(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)         // getting id
 	var user User                 // to save user from db we are creating user struct
 	DB.First(&user, params["id"]) // fetching value by id
+	// name : jp , then below line name : jayapraksh
 	json.NewDecoder(r.Body).Decode(&user)
 	DB.Save(&user)
 	json.NewEncoder(w).Encode(user)

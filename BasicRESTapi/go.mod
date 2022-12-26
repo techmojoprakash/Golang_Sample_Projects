@@ -1,5 +1,9 @@
 module MyFirstRestApi
 
-go 1.19
+go 1.16
 
-require github.com/gorilla/mux v1.8.0 // indirect
+require (
+	github.com/gorilla/context v1.1.1 // indirect
+	github.com/gorilla/mux v1.6.0
+	github.com/robfig/cron/v3 v3.0.1 // indirect
+)

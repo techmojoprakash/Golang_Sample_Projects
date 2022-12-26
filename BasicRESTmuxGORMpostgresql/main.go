@@ -33,16 +33,35 @@ func InitialMigration() {
 	if err != nil {
 		fmt.Println(err.Error())
 		panic("Cannot connect to DB")
+	} else {
+		fmt.Println("Connected to DB successfully...!")
 	}
+
 	DB.AutoMigrate(&User{})
+	/*
+		This Auto Migration feature will automatically migrate your schema.
+		It will automatically create the table based on your model.
+		We don’t need to create the table manually.
+	*/
+
 }
 
 // GET
 func GetUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var users []User
-	DB.Find(&users)
-	json.NewEncoder(w).Encode(users)
+	db_err := DB.Find(&users).Error
+	// checking if we got any error from db query
+	if db_err == gorm.ErrRecordNotFound {
+		// now sending error to client
+		http.Error(w, db_err.Error(), 404)
+		return
+	}
+	err := json.NewEncoder(w).Encode(users)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
 
 }
 
@@ -51,18 +70,50 @@ func GetUserbyId(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	var user User
-	DB.First(&user, params["id"])
-	json.NewEncoder(w).Encode(user)
-
+	db_err := DB.First(&user, params["id"]).Error
+	// checking if we got any error from db query
+	if db_err == gorm.ErrRecordNotFound {
+		// now sending error to client
+		http.Error(w, db_err.Error(), 404)
+		return
+	}
+	err_server := json.NewEncoder(w).Encode(user)
+	if err != nil {
+		http.Error(w, err_server.Error(), 500)
+		return
+	}
 }
 
 // POST
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var user User
-	json.NewDecoder(r.Body).Decode(&user)
-	DB.Create(&user)
-	json.NewEncoder(w).Encode(user)
+	cli_err := json.NewDecoder(r.Body).Decode(&user)
+	if cli_err != nil {
+		http.Error(w, cli_err.Error(), 500)
+		return
+	}
+	// need to handle properly below
+	result := DB.Create(&user)
+	if result != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	// err := json.NewEncoder(w).Encode(user)
+	// if err != nil {
+	// 	http.Error(w, err.Error(), 500)
+	// 	return
+	// }
+	// w.WriteHeader(http.StatusCreated) // not working
+	// resp := make(map[string]string)
+	// resp["message"] = "Status Created"
+	// _ := json.NewEncoder(w).Encode(resp).Error()
+	// // if err != nil {
+	// // 	http.Error(w, err1.Error(), 500)
+	// // 	return
+	// // }
+	// // w.Write(resp)
+	return
 
 }
 
@@ -72,18 +123,48 @@ func UpdateUserbyId(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)         // getting id
 	var user User                 // to save user from db we are creating user struct
 	DB.First(&user, params["id"]) // fetching value by id
-	json.NewDecoder(r.Body).Decode(&user)
+	cli_err := json.NewDecoder(r.Body).Decode(&user)
+	if cli_err != nil {
+		http.Error(w, cli_err.Error(), 500)
+		return
+	}
 	DB.Save(&user)
-	json.NewEncoder(w).Encode(user)
+	err := json.NewEncoder(w).Encode(user)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
 }
 
 // DELETE
+// need to write func by using flag inorder to keep old data
+
 func DeleteUserbyId(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	var user User
-	DB.Delete(&user, params["id"])
-	json.NewEncoder(w).Encode("User Deleted")
+
+	// // get code from this file
+	// exist_err := DB.First(&user, params["id"]).Error
+	// // checking if we got any error from db query
+	// if exist_err == gorm.ErrRecordNotFound {
+	// 	// now sending error to client
+	// 	http.Error(w, exist_err.Error(), 404)
+	// 	return
+	// }
+
+	db_err := DB.Delete(&user, params["id"]).Error
+	// checking if we got any error from db query
+	if db_err.Error != nil {
+		// now sending error to client
+		http.Error(w, db_err.Error(), 404)
+		return
+	}
+	err := json.NewEncoder(w).Encode("User Deleted")
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
 }
 
 // --------------

@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/robfig/cron/v3"
+
 	"github.com/gorilla/mux"
 )
 
@@ -125,6 +127,8 @@ func updateMovie(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	var r = mux.NewRouter() // router by mux
+	fmt.Println("Hello")
+	c := cron.New()
 
 	//sample movies added to list/struct
 	movies = append(movies, Movie{ID: "1", Isbn: "23456", Title: "Movie One", Director: &Director{FirstName: "Jhon", LastName: "Doe"}})
