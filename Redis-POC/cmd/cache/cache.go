@@ -57,7 +57,7 @@ func (c *RedisCache) Get(key string) (*model.Student, error) {
 	// fmt.Println("Data... ", cache, client)
 	val, err := client.Get(ctx, key).Result()
 	if err == redis.Nil {
-		fmt.Println("missing_key does not exist in Redis Cache: err ", err)
+		fmt.Println("missing_key does not exist in Redis Cache: err ", key)
 		return nil, err
 	}
 
