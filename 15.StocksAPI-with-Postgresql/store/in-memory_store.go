@@ -30,9 +30,7 @@ func (r *StockRepositoryImpl) GetStocks() ([]models.Stock, error) {
 func (r *StockRepositoryImpl) GetStockByID(id int) (*models.Stock, error) {
 	r.Lock()
 	defer r.Unlock()
-	var stock *models.Stock
-	var exist bool
-	stock, exist = r.stocks[id]
+	stock, exist := r.stocks[id]
 	if !exist {
 		return stock, errors.New("stock not found")
 	}
@@ -42,9 +40,8 @@ func (r *StockRepositoryImpl) GetStockByID(id int) (*models.Stock, error) {
 func (r *StockRepositoryImpl) CreateStock(stock *models.Stock) error {
 	r.Lock()
 	defer r.Unlock()
-	var exist bool
-	stock, exist = r.stocks[stock.Id]
-	if !exist {
+	_, exist := r.stocks[stock.Id]
+	if exist {
 		return errors.New("stock is already exist")
 	}
 	r.stocks[stock.Id] = stock
@@ -54,8 +51,7 @@ func (r *StockRepositoryImpl) CreateStock(stock *models.Stock) error {
 func (r *StockRepositoryImpl) UpdateStock(stock *models.Stock) error {
 	r.Lock()
 	defer r.Unlock()
-	var exist bool
-	_, exist = r.stocks[stock.Id]
+	_, exist := r.stocks[stock.Id]
 	if !exist {
 		return errors.New("stock not found")
 	}
@@ -66,8 +62,7 @@ func (r *StockRepositoryImpl) UpdateStock(stock *models.Stock) error {
 func (r *StockRepositoryImpl) DeleteStock(id int) error {
 	r.Lock()
 	defer r.Unlock()
-	var exist bool
-	_, exist = r.stocks[id]
+	_, exist := r.stocks[id]
 	if !exist {
 		return errors.New("stock not found")
 	}
