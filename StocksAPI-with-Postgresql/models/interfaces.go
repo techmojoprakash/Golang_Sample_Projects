@@ -9,7 +9,7 @@ type Stock struct {
 	Price   int
 }
 
-// Store
+// StockRepository Store
 type StockRepository interface {
 	GetStocks() ([]Stock, error)         // Get all stocks
 	GetStockByID(id int) (*Stock, error) // Get a stock by its ID.
@@ -18,7 +18,7 @@ type StockRepository interface {
 	DeleteStock(id int) error            // Delete a stock by its ID
 }
 
-// Service
+// StockService Service
 type StockService interface {
 	ListStocks() ([]Stock, error)    // List all stocks
 	GetStock(id int) (*Stock, error) // Get a stock by ID

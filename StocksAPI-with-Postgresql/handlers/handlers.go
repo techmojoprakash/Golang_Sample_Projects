@@ -20,7 +20,7 @@ func NewStockHandler(ser models.StockService) models.StockHandler {
 	}
 }
 
-func (h *StockHandlerImpl) ListStocksHandler(w http.ResponseWriter, r *http.Request) {
+func (h *StockHandlerImpl) ListStocksHandler(w http.ResponseWriter, _ *http.Request) {
 	log.Printf("ListStocksHandler...!")
 	w.Header().Set("Content-Type", "application/json")
 
@@ -44,14 +44,14 @@ func (h *StockHandlerImpl) GetStockHandler(w http.ResponseWriter, r *http.Reques
 	w.Header().Set("Content-Type", "application/json")
 	var stock *models.Stock
 	params := mux.Vars(r)
-	stockid, err := strconv.Atoi(params["id"])
+	stockId, err := strconv.Atoi(params["id"])
 	if err != nil {
 		log.Println("GetStockHandler:Unable to read client data", err)
 		respondWithError(w, http.StatusBadRequest, "Unable to read client data")
 		return
 	}
 
-	stock, err = h.Service.GetStock(stockid)
+	stock, err = h.Service.GetStock(stockId)
 	if err != nil {
 		log.Println("GetStockHandler:stock data not found", err)
 		respondWithError(w, http.StatusNotFound, "stock data not found")
@@ -84,7 +84,7 @@ func (h *StockHandlerImpl) CreateStockHandler(w http.ResponseWriter, r *http.Req
 		respondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	respondWithSuccess(w, http.StatusCreated, "stock addedd successfully")
+	respondWithSuccess(w, http.StatusCreated, "stock added successfully")
 }
 func (h *StockHandlerImpl) UpdateStockHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("UpdateStockHandler...!")
@@ -119,20 +119,20 @@ func (h *StockHandlerImpl) DeleteStockHandler(w http.ResponseWriter, r *http.Req
 	w.Header().Set("Content-Type", "application/json")
 	// var stock *models.Stock
 	params := mux.Vars(r)
-	stockid, err := strconv.Atoi(params["id"])
+	stockId, err := strconv.Atoi(params["id"])
 	if err != nil {
 		log.Println("DeleteStockHandler:Unable to read client data", err)
 		respondWithError(w, http.StatusBadRequest, "Unable to read client data")
 		return
 	}
 
-	_, err = h.Service.GetStock(stockid)
+	_, err = h.Service.GetStock(stockId)
 	if err != nil {
 		log.Println("DeleteStockHandler:stock data not found", err)
 		respondWithError(w, http.StatusNotFound, "stock data not found")
 		return
 	}
-	err = h.Service.RemoveStock(stockid)
+	err = h.Service.RemoveStock(stockId)
 	if err != nil {
 		log.Println("DeleteStockHandler:unable to delete stock", err)
 		respondWithError(w, http.StatusInternalServerError, "unable to delete stock")
@@ -141,18 +141,18 @@ func (h *StockHandlerImpl) DeleteStockHandler(w http.ResponseWriter, r *http.Req
 	respondWithSuccess(w, http.StatusOK, "stock deleted successfully")
 }
 
-func respondWithError(w http.ResponseWriter, statuscode int, error_msg string) {
-	w.WriteHeader(statuscode)
+func respondWithError(w http.ResponseWriter, statusCode int, errorMsg string) {
+	w.WriteHeader(statusCode)
 	err := json.NewEncoder(w).Encode(map[string]string{
-		"error": error_msg,
+		"error": errorMsg,
 	})
 	if err != nil {
 		log.Printf("respondWithError:Unable to encode error message")
 	}
 }
 
-func respondWithSuccess(w http.ResponseWriter, statuscode int, msg string) {
-	w.WriteHeader(statuscode)
+func respondWithSuccess(w http.ResponseWriter, statusCode int, msg string) {
+	w.WriteHeader(statusCode)
 	err := json.NewEncoder(w).Encode(map[string]string{
 		"status": msg,
 	})

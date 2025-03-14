@@ -29,7 +29,7 @@ func setupRouter(handler models.StockHandler) *mux.Router {
 }
 
 func InitDB() *gorm.DB {
-	// Build the PostgreSQL connection string
+	// Build the PostgresSQL connection string
 	PostgresURI := fmt.Sprintf(
 		"host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
 		"localhost", "5432", "postgres", "stocksdb", "root")
@@ -47,7 +47,7 @@ func validateDB(gormDB *gorm.DB) {
 	if err != nil {
 		log.Fatalf("failed to fetch underlying sql.DB %v", err)
 	}
-	postgresDB.Ping() // Ping the database
+	err = postgresDB.Ping() // Ping the database
 	if err != nil {
 		log.Fatalf("failed to ping DB %v", err)
 	}
@@ -67,8 +67,8 @@ func main() {
 	// Postgres store
 	repo := store.NewStockRepositoryDB(db)
 
-	service := service.NewStockService(repo)
-	handler := handlers.NewStockHandler(service)
+	svc := service.NewStockService(repo)
+	handler := handlers.NewStockHandler(svc)
 	router := setupRouter(handler)
 	ser := http.Server{
 		Addr:    ":8888",
@@ -79,7 +79,7 @@ func main() {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
-	// Running on saparate goroutine
+	// Running on separate goroutine
 	go func() {
 		log.Println("Server will start")
 		err := ser.ListenAndServe()

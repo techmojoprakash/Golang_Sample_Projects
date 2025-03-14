@@ -20,8 +20,8 @@ func NewStockRepositoryDB(db *gorm.DB) models.StockRepository {
 
 func (r *StockRepositoryDBImpl) GetStocks() ([]models.Stock, error) {
 
-	var allstocks []models.Stock
-	result := r.DBConn.Raw("SELECT * FROM stocks").Scan(&allstocks)
+	var allStocks []models.Stock
+	result := r.DBConn.Raw("SELECT * FROM stocks").Scan(&allStocks)
 	if result.Error != nil {
 		log.Println("GetStocks:DB Query failed", result.Error)
 		return nil, result.Error
@@ -30,8 +30,8 @@ func (r *StockRepositoryDBImpl) GetStocks() ([]models.Stock, error) {
 		log.Println("GetStocks: No stocks found")
 		return nil, errors.New("no stocks found")
 	}
-	log.Println("CreateStock:DB Query Successful for all stocks ", allstocks)
-	return allstocks, nil
+	log.Println("CreateStock:DB Query Successful for all stocks ", allStocks)
+	return allStocks, nil
 }
 
 func (r *StockRepositoryDBImpl) GetStockByID(id int) (*models.Stock, error) {
